@@ -1,16 +1,56 @@
 #!/usr/bin/env python3
+"""
+Gauntlet graphics EPROM packer for 4bpp planar tiles.
+
+This script reads eight Gauntlet character/tile EPROM files, combines them into
+four bit planes, and writes a single interleaved tile data file suitable for
+tools that expect 8x8 tiles with 4 planes per row. Tile data is written sequentially.
+
+Output layout per tile:
+For each row 0..7 of an 8x8 tile, bytes are written in plane order
+[P0, P1, P2, P3], where planes correspond to ROM pairs: 
+- P0=(111+112),
+- P1=(113+114),
+- P2=(115+116),
+- P3=(117+118). 
+Bit order is MSB-first in each byte (leftmost pixel = bit 7).
+
+Paths are resolved relative to the script's directory and the output is written
+to `gauntlet_4bpp_planar_tiles.bin`.
+"""
 import os, sys
 from typing import List
 
-ROM_SIZE = 0x8000      # 32 KiB per ROM
-PLANE_SIZE = 0x10000   # 64 KiB per plane (two ROMs)
+# Size of each individual Gauntlet graphics ROM
+# 0x8000 bytes == 32 KiB
+ROM_SIZE = 0x8000
+
+# Size of each bit plane built by concatenating two ROMs
+# 0x10000 bytes == 64 KiB (2 * 32 KiB)
+PLANE_SIZE = 0x10000
+
+# Number of rows per 8x8 tile
 TILE_ROWS = 8
-BYTES_PER_ROW = 4      # 4 planes
+
+# Bytes output per tile row: one byte per plane (P0..P3)
+BYTES_PER_ROW = 4
+
+# Total bytes per 8x8 tile: 8 rows * 4 bytes per row (plane bytes)
 BYTES_PER_TILE = TILE_ROWS * BYTES_PER_ROW  # 32
-TILES_PER_PLANE = PLANE_SIZE // TILE_ROWS   # 8192
+
+# Number of tiles in one 64 KiB plane: 65536 / 8 bytes-per-row = 8192 rows
+# Each tile consumes 8 rows; iteration uses TILE_ROWS to step per tile
+TILES_PER_PLANE = PLANE_SIZE // TILE_ROWS  # 8192
+
+# Final interleaved buffer size: tiles * bytes per tile
 INTERLEAVED_SIZE = TILES_PER_PLANE * BYTES_PER_TILE  # 262144
 
+# Output file (relative to this script's directory)
+OUTPUT_REL = 'gauntlet_4bpp_planar_tiles.bin'
+
 def read_file(path: str) -> bytes:
+    """Read and return the entire contents of a binary file.
+    """
     try:
         with open(path, "rb") as f:
             return f.read()
@@ -18,6 +58,12 @@ def read_file(path: str) -> bytes:
         sys.exit(f"Error reading {path}: {e}")
 
 def write_file(path: str, data: bytes) -> None:
+    """Write raw bytes to a file (overwriting if it exists).
+
+    Args:
+        path: Destination file path.
+        data: Bytes to write.
+    """
     try:
         with open(path, "wb") as f:
             f.write(data)
@@ -25,6 +71,8 @@ def write_file(path: str, data: bytes) -> None:
         sys.exit(f"Error writing {path}: {e}")
 
 def combine_roms_to_planes(roms8: List[str]) -> List[bytes]:
+    """Combine eight ROM files into four 64 KiB planes.
+    """
     if len(roms8) != 8:
         sys.exit("Expected 8 ROM paths in order: 111,112,113,114,115,116,117,118")
     rom_data = [read_file(p) for p in roms8]
@@ -43,9 +91,14 @@ def combine_roms_to_planes(roms8: List[str]) -> List[bytes]:
             sys.exit(f"Plane {i}: expected {PLANE_SIZE} bytes, got {len(pl)}")
     return planes
 
-# (No longer supporting prebuilt plane inputs; helper removed)
-
 def interleave_tiles(planes: List[bytes]) -> bytes:
+    """Interleave four planes into row-major 4bpp tile data.
+
+    For each tile (0..8191) and each row (0..7), bytes are emitted in order
+    P0, P1, P2, P3. The resulting buffer has size `INTERLEAVED_SIZE`.
+
+    Each byte is inverted, per the logic for the gfx2 ROM_REGION in gauntlet.cpp of mame.
+    """
     p0, p1, p2, p3 = planes
     out = bytearray(INTERLEAVED_SIZE)
     for tile in range(TILES_PER_PLANE):
@@ -56,6 +109,13 @@ def interleave_tiles(planes: List[bytes]) -> bytes:
             b1 = p1[base0 + row]
             b2 = p2[base0 + row]
             b3 = p3[base0 + row]
+            
+            # Invert bits
+            b0 ^= 0xFF
+            b1 ^= 0xFF
+            b2 ^= 0xFF
+            b3 ^= 0xFF  
+            
             off = base_out + row * BYTES_PER_ROW
             out[off + 0] = b0
             out[off + 1] = b1
@@ -64,7 +124,6 @@ def interleave_tiles(planes: List[bytes]) -> bytes:
     return bytes(out)
 
 def main():
-    # Fixed ROM paths (relative to this script's directory)
     roms8 = [
         '../rom/gauntlet/136037-111.1a',
         '../rom/gauntlet/136037-112.1b',
@@ -81,18 +140,11 @@ def main():
     roms8_abs = [os.path.normpath(os.path.join(script_dir, p)) for p in roms8]
 
     planes = combine_roms_to_planes(roms8_abs)
-
     inter = interleave_tiles(planes)
 
-    # Fixed output path next to ROMs
-    out_rel = '../rom/gauntlet/gauntlet_tiles_4bpp_interleaved.bin'
-    out_path = os.path.normpath(os.path.join(script_dir, out_rel))
+    out_path = os.path.normpath(os.path.join(script_dir, OUTPUT_REL))
     write_file(out_path, inter)
     print(f"Wrote interleaved tiles: {out_path} ({len(inter)} bytes)")
-
-    # Sanity notes
-    # - interleaved file layout per 8x8 tile: for each row 0..7 -> [P0,P1,P2,P3]
-    # - bit order is MSB-first in each byte (leftmost pixel = bit 7)
 
 if __name__ == "__main__":
     main()
