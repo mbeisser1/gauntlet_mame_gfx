@@ -1,0 +1,13 @@
+From mame documentation:
+
+    910000-9101FF   R/W   xxxxxxxx xxxxxxxx   Alphanumercs palette RAM (256 entries)
+                    R/W   xxxx---- --------      (Intensity)
+                    R/W   ----xxxx --------      (Red)
+                    R/W   -------- xxxx----      (Green)
+                    R/W   -------- ----xxxx      (Blue)
+    910200-9103FF   R/W   xxxxxxxx xxxxxxxx   Motion object palette RAM (256 entries)
+    910400-9105FF   R/W   xxxxxxxx xxxxxxxx   Playfield palette RAM (256 entries)
+    910600-9107FF   R/W   xxxxxxxx xxxxxxxx   Extra palette RAM (256 entries)
+
+MAME debugger command to dump contents:
+save palette_raw.bin,910000:maincpu,800
