@@ -435,8 +435,8 @@ GFXDECODE_END
 The following sections require knowledge of the planar graphics format.
 If you need a basic refresher of planar graphics see here:
 
-- [2bpp planar graphics](2bpp_planar_graphics.md)
-- [4bpp planar graphics](4bpp_planar_graphics.md)
+- [2bpp planar graphics](docs/2bpp_planar_graphics.md)
+- [4bpp planar graphics](docs/4bpp_planar_graphics.md)
 
 If you are new to planar graphics, I recommend any graphics tutorials for the NES, SNES, Sega Master System, or Sega Genesis as they all use planar graphics.
 
