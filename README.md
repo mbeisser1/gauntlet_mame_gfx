@@ -6,15 +6,9 @@ The dungeon playfield (blocks, floors, etc.) is not included.
 
 See [releases](https://github.com/mbeisser1/gauntlet_mame_gfx/releases) for downloads.
 
-If you are interested in how graphics, like the warrior sprites below, were ripped from the arcade ROMs then read on.
+If you are interested in how graphics, like the player sprites below, were ripped from the arcade ROMs then read on.
 
-![alt text](gfx/sprites/text-gauntlet.png)
-
-![alt text](gfx/sprites/player-warrior-sprite-sheet.png)
-
-![alt text](gfx/sprites/player-warrior-exit-sprite-sheet.png)
-
-![alt text](gfx/sprites/player-warrior-weapon-sprite-sheet.png)
+![alt text](gfx/sprites/all-player.png)
 
 ## Table of Contents
 
