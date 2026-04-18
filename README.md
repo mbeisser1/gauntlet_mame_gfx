@@ -39,7 +39,7 @@ If you are interested in how graphics, like the warrior sprites below, were ripp
     - [Alphanumeric Graphics: 2BPP Planar](#alphanumeric-graphics-2bpp-planar)
     - [4BPP Export Script](#4bpp-export-script)
     - [2BPP Text Export Script](#2bpp-text-export-script)
-    - [Palette Format (Explains the 0x00 High Byte)](#palette-format-explains-the-0x00-high-byte)
+    - [Palette Format](#palette-format)
 
 ## Repository
 
@@ -433,11 +433,6 @@ GFXDECODE_END
 ### Planar Graphics
 
 The following sections require knowledge of the planar graphics format.
-If you need a basic refresher of planar graphics see here:
-
-- [2bpp planar graphics](docs/2bpp_planar_graphics.md)
-- [4bpp planar graphics](docs/4bpp_planar_graphics.md)
-
 If you are new to planar graphics, I recommend any graphics tutorials for the NES, SNES, Sega Master System, or Sega Genesis as they all use planar graphics.
 
 If you're not sure where to start, try here:
@@ -558,7 +553,7 @@ At a high level it:
 The important distinction is that the text layer is not stored like the 4-plane sprite region.
 It is already compact and interleaved within each byte pair, so this script converts it from Gauntlet's nibble-planar layout into a conventional packed 2BPP representation.
 
-### Palette Format (Explains the 0x00 High Byte)
+### Palette Format
 
 - `PALETTE(...).set_format(palette_device::IRGB_4444, 1024)` configures 1,024 palette entries in IRGB 4-4-4-4 format.
 - The production PCB ties the intensity nibble low, so palette words are effectively `0x0RGB`. The high byte carries only the 4-bit red value (`0x0R`), which is why raw dumps show leading `0x00` bytes.
