@@ -10,6 +10,8 @@ If you are interested in how graphics, like the player sprites below, were rippe
 
 ![alt text](gfx/sprites/all-player.png)
 
+![alt text](gfx/sprites/all-monster.png)
+
 ## Table of Contents
 
 - [Gauntlet (1985) Graphics](#gauntlet-1985-graphics)
