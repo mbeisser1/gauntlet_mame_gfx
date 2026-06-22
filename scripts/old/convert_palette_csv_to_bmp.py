@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Superseded by scripts/convert_mame_palette_dump.py
 
 import struct
 import sys

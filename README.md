@@ -44,11 +44,13 @@ If you are interested in how graphics, like the player sprites below, were rippe
 To start, you'll need a Gauntlet romset for MAME (version 0.191 or newer).
 
 1. Extract the Gauntlet romset to the `rom` directory.
+1. Capture palette RAM from MAME while playing (see [Playfield palette mapping](docs/playfield_palette_mapping.md)), then convert:
+   1. `python3 scripts/convert_mame_palette_dump.py gfx/palette/palette_raw.dump`
 1. Run the python scripts in the `scripts` directory:
     1. To extract the majority of the sprites:
-       1. `python3 gauntlet_4bpp_planar_tiles.py`
+       1. `python3 scripts/bitplane_roms_to_4bpp_planar_tiles.py`
     1. To extract the character and text data:
-       1. `python3 gauntlet_alpha_numeric_2bpp_linear_tiles.py`
+       1. `python3 scripts/alpha_numeric_rom_to_2bpp_linear_tiles.py`
 1. Open the 2 output `.bin` files in a tile editor.
 
 ### Repository Layout
@@ -130,6 +132,16 @@ Scrolling through the palettes, we see 3 distinct sections.
 3. The 16 rows of darker / dull colors starting at offset 0x200.
 
 It isn't obvious how to determine the different sections, but for now, note that Gauntlet has hundreds (not thousands) of colors associated with sprite tiles.
+
+To export the full palette from a gameplay session, see [docs/debugging_palette.md](docs/debugging_palette.md) for MAME ROM verification, screenshot capture, and the debugger dump command, then run:
+
+```
+python3 scripts/convert_mame_palette_dump.py gfx/palette/palette_raw.dump
+```
+
+This writes split CSV files (`palette_text.csv`, `palette_motion_object.csv`, `palette_playfield.csv`, `palette_extra.csv`) plus BMP previews. For how playfield tile pens map to palette indices, see [docs/playfield_palette_mapping.md](docs/playfield_palette_mapping.md).
+
+The older palette scripts in `scripts/old/` are superseded by `scripts/convert_mame_palette_dump.py`.
 
 ### Tile Viewer
 
@@ -552,4 +564,6 @@ It is already compact and interleaved within each byte pair, so this script conv
 ### Palette Format
 
 - `PALETTE(...).set_format(palette_device::IRGB_4444, 1024)` configures 1,024 palette entries in IRGB 4-4-4-4 format.
-- The production PCB ties the intensity nibble low, so palette words are effectively `0x0RGB`. The high byte carries only the 4-bit red value (`0x0R`), which is why raw dumps show leading `0x00` bytes.
+- Palette RAM is written at runtime by the game; capture it from MAME during gameplay (see [docs/playfield_palette_mapping.md](docs/playfield_palette_mapping.md)).
+- Convert dumps with `scripts/convert_mame_palette_dump.py`, which applies MAME's exact `standard_irgb_decoder` (intensity × RGB nibble expansion).
+- The production PCB ties the intensity nibble low in some hardware paths, but gameplay dumps still use non-zero intensity values for many playfield colors.
