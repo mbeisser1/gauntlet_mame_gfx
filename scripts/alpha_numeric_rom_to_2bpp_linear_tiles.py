@@ -45,12 +45,12 @@ def interleave_tiles(data: bytes) -> bytearray:
     return out
 
 def main():
-    data = read_file(INPUT_FILE)
-    inter = interleave_tiles(data)
-
-    # Resolve paths relative to script location
     script_dir = os.path.dirname(os.path.abspath(__file__))
+    in_path = os.path.normpath(os.path.join(script_dir, INPUT_FILE))
     out_path = os.path.normpath(os.path.join(script_dir, OUTPUT_REL))
+
+    data = read_file(in_path)
+    inter = interleave_tiles(data)
     write_file(out_path, inter)
     print(f"Wrote: {out_path} {len(data)} bytes, {len(data) // 16} tiles")
 
