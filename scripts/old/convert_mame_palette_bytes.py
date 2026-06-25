@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Superseded by scripts/convert_mame_palette_dump.py
 
 import struct
 import sys
@@ -51,7 +52,7 @@ def write_csv(output_file, hex_data):
     with open(output_file, 'w') as outfile:
         for i in range(0, len(hex_data), 16):
             # Join 16 hex values with commas and ensure proper formatting
-            line = ', '.join([f"{r:02X}{g:02X}{b:02X}" for r, g, b in hex_data[i:i+16]])
+            line = ', '.join([f"0x{r:02X}{g:02X}{b:02X}" for r, g, b in hex_data[i:i+16]])
             outfile.write(line + '\n')
 
 def write_bmp(output_file, rgb_values):
